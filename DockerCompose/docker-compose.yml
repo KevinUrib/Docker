@@ -1,0 +1,106 @@
+# ==============================================================================
+# SERVICIOS (CONTENEDORES)
+# ==============================================================================
+services:
+
+  nombre-servicio:
+    # -----------------------------------------------------------
+    # ELEGIR ENTRE IMAGE O BUILD
+    # -----------------------------------------------------------
+
+    # Opción 1: usar una imagen existente
+    image: nginx:latest
+
+    # Opción 2: construir desde Dockerfile
+    # build:
+    #   context: .                # ruta del proyecto
+    #   dockerfile: Dockerfile    # nombre del archivo (opcional)
+
+    # -----------------------------------------------------------
+    # PROPIEDADES DEL CONTENEDOR
+    # -----------------------------------------------------------
+    container_name: nombre_del_contenedor
+
+    # Mapeo de puertos (HOST:CONTENEDOR)
+    ports:
+      - "8080:80"
+
+    # Variables de entorno individuales
+    environment:
+      - ENV=dev
+      - TOKEN=12345
+
+    # Archivo .env con variables
+    env_file:
+      - .env
+
+    # Volúmenes
+    volumes:
+      - ./app:/usr/src/app         # bind mount
+      - datos_app:/var/data        # volumen gestionado por docker
+
+    # Dependencias de otros servicios (orden de arranque)
+    depends_on:
+      - base-datos
+      - redis
+
+    # Redes a las que pertenece el servicio
+    networks:
+      - red_backend
+      - red_frontend
+
+    # Política de reinicio automático
+    restart: unless-stopped
+
+    # Sobrescribir el comando del contenedor
+    command: ["npm", "start"]
+
+    # Sobrescribir ENTRYPOINT del contenedor
+    entrypoint: ["python"]
+
+    # Configuración de logs del contenedor
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # EJEMPLO DE OTRO SERVICIO (BASE DE DATOS)
+  # ---------------------------------------------------------------------------
+  base-datos:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: pruebas
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - red_backend
+
+  # ---------------------------------------------------------------------------
+  # EJEMPLO DE SERVICIO REDIS (CACHE)
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - red_backend
+
+# ==============================================================================
+# VOLUMENES PERSISTENTES
+# ==============================================================================
+volumes:
+  pgdata:
+  datos_app:
+
+# ==============================================================================
+# REDES PERSONALIZADAS
+# ==============================================================================
+networks:
+  red_backend:
+    driver: bridge
+  red_frontend:
+    driver: bridge
