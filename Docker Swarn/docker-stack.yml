@@ -1,0 +1,26 @@
+services:
+  app:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    deploy:
+      replicas: 3                 # Número de instancias del servicio
+      restart_policy:
+        condition: on-failure
+      resources:                  # Límite de recursos
+        limits:
+          cpus: "0.50"
+          memory: 256M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+      update_config:              # Actualizaciones en rolling update
+        parallelism: 1
+        delay: 10s
+      placement:                  # Reglas para elegir nodos
+        constraints:
+          - node.role == worker
+
+networks:
+  default:
+    driver: overlay

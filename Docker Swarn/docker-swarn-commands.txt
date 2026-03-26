@@ -1,0 +1,32 @@
+A ejecutar desde la CLI
+
+A. Inicializar Swarm
+docker swarm init
+
+B. Unir nodos al clúster
+docker swarm join --token <token> <ip-manager>:2377
+
+C. Ver nodos del clúster
+docker node ls
+
+D. Desplegar una stack
+docker stack deploy -c docker-stack.yml nombre_stack
+
+E. Ver servicios desplegados
+docker service ls
+
+F. Escalar un servicio
+docker service scale web_app=5
+
+G. Ver detalles del servicio
+docker service ps web_app
+
+H. Ver logs del servicio
+docker service logs web_app
+
+I. Eliminar una stack
+docker stack rm web
+
+J. Apagar todo el Swarm
+docker swarm leave --force
+
